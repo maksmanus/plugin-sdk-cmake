@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.11)
 project("std__stream" LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 23)
+
+#start include PLUGIN SDK INTO YOUR PTOJECT
 set(SHARED_DIR ${CMAKE_SOURCE_DIR}/plugin-sdk-cmake/shared)
 
 add_compile_definitions(GTASA)
@@ -27,9 +29,8 @@ include_directories(${SHARED_DIR}/extensions)
 include_directories(${SHARED_DIR}/game)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/plugin-sdk-cmake)
+# end includes
 
-file(GLOB_RECURSE SOURCES ${CMAKE_SOURCE_DIR}/src/*.cpp)
-file(GLOB_RECURSE _INCLUDES_CPP ${CMAKE_SOURCE_DIR}/include/*.cpp)
-add_library(std_stream SHARED ${SOURCES} ${_INCLUDES_CPP})
+# adding your sources
 
-target_link_libraries(std_stream PRIVATE plugin-sdk) #add your libs
+target_link_libraries(YOUT_PLUGIN_NAME PRIVATE plugin-sdk) #link plugin sdk lib add your libs
