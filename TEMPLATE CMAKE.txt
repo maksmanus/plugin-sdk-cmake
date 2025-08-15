@@ -4,6 +4,8 @@ project("std__stream" LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(SHARED_DIR ${CMAKE_SOURCE_DIR}/plugin-sdk-cmake/shared)
 
+add_compile_options(/MT)
+
 add_compile_definitions(GTASA)
 add_compile_definitions(RW)
 add_compile_definitions(IS_PLATFORM_WIN_X86)
