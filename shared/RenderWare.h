@@ -12,6 +12,7 @@
 #ifndef rwPLUGIN_ID 
 #define rwPLUGIN_ID 0x01
 #endif
+#include <rwplcore.h>
 #include <rwcore.h>
 #include <rpworld.h>
 #include <rphanim.h>
