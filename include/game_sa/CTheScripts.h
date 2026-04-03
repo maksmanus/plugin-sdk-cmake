@@ -13,11 +13,29 @@
 #include "CMissionCleanup.h"
 #include "CBuilding.h"
 #include "CSprite2d.h"
+#include "CFont.h"
 #include "CStreamedScripts.h"
 #include "CScriptResourceManager.h"
 #include "CStuckCarCheck.h"
 #include "CUpsideDownCarCheck.h"
 #include "CScriptsForBrains.h"
+
+enum class eUseTextCommandState : char
+{
+    DISABLED,
+    DISABLE_NEXT_FRAME,
+    ENABLED_BY_SCRIPT
+};
+
+enum class eScriptRectangleType : int
+{
+    NONE,
+    HEADER_AND_TEXT,
+    HEADER_NO_TEXT,
+    SOLID_COLOUR,
+    SPRITE_NO_ROTATION,
+    SPRITE_WITH_ROTATION,
+};
 
 struct tBuildingSwap
 {
@@ -52,55 +70,64 @@ struct tScriptSequence
     short wUniqueID;
 };
 
+#pragma pack(push,1)
 struct tScriptText
 {
-    float letterWidth;
-    int letterHeight;
-    RwRGBA color;
-    char m_bJustify;
-    char centered;
-    char withBackground;
-    char _pad;
-    int lineHeight;
-    int lineWidth;
-    RwRGBA backgroundBoxColor;
-    char proportional;
-    RwRGBA backgroundColor;
-    char shadowType;
-    char outlineType;
-    char m_bDrawBeforeFade;
-    char m_bRightJustify;
-    char _pad_25;
-    char _pad_26;
-    char _pad_27;
-    int font;
-    int xPosition;
-    int yPosition;
-    char gxtEntry[8];
-    int param1;
-    int param2;
+    // defaults from CTheScripts::Init()
+    float letterWidth = 0.48f;
+    float letterHeight = 1.12f;
+    CRGBA color = { 255, 255, 255, 255 };
+    bool justify = false;
+    bool centered = false;
+    bool withBackground = false;
+    char _pad = 0;
+    float wrapWidth = float(RsGlobal.maximumWidth);
+    float centerWidth = float(RsGlobal.maximumWidth);
+    CRGBA backgroundBoxColor = { 128, 128, 128, 128 };
+    bool proportional = true;
+    CRGBA backgroundColor = { 0, 0, 0, 255 };
+    char shadowType = 2; // drop shadow offset
+    char outlineType = 0; // outline thickness
+    bool drawBeforeFade = false;
+    bool rightJustify = false;
+    char _pad_25 = 0;
+    char _pad_26 = 0;
+    char _pad_27 = 0;
+    int font = FONT_SUBTITLES;
+    float xPosition = 0.0f;
+    float yPosition = 0.0f;
+    char text[8] = { 0 }; // gxt
+    int param1 = -1;
+    int param2 = -1;
 };
+#pragma pack(pop)
+VALIDATE_SIZE(tScriptText, 0x44);
 
+#pragma pack(push,1)
 struct tScriptRectangle
 {
-    int type;
-    char m_bDrawBeforeFade;
-    char field_5;
-    short textureID;
-    int cornerA_X;
-    int cornerA_Y;
-    int cornerB_X;
-    int cornerB_Y;
-    int angle;
-    int transparentColor;
-    char gxt[8];
-    int field_28;
-    int field_2C;
-    int field_30;
-    int field_34;
-    char textboxStyle;
-    char field_39[3];
+    // defaults from CTheScripts::Init()
+    eScriptRectangleType type = eScriptRectangleType::NONE;
+    bool drawBeforeFade = false;
+    char _pad_5 = 0;
+    short spriteIdx = -1;
+    CRect rect = { 0.0f, 0.0f, 0.0f, 0.0f };
+    float angle = 0.0f;
+    CRGBA color = { 255, 255, 255, 255 };
+    char title[8] = { 0 }; // gxt
+    char _pad_28 = 0;
+    char _pad_29 = 0;
+    char message[8] = { 0 }; // gxt
+    char _pad_32 = 0;
+    char _pad_33 = 0;
+    eFontAlignment alignment = eFontAlignment::ALIGN_CENTER;
+    char _pad_36 = 0;
+    char _pad_37 = 0;
+    char _pad_38 = 0;
+    int textboxStyle = 3;
 };
+#pragma pack(pop)
+VALIDATE_SIZE(tScriptRectangle, 0x3C);
 
 struct tScriptAttachedAnimGroup
 {
@@ -195,7 +222,7 @@ public:
     SUPPORTED_10US static unsigned short &NumberOfMissionScripts;
     SUPPORTED_10US static unsigned int &LargestMissionScriptSize;
     SUPPORTED_10US static unsigned int &MainScriptSize;
-    SUPPORTED_10US static char *MultiScriptArray; // static char MultiScriptArray[800]
+    SUPPORTED_10US static int(&MultiScriptArray)[200]; // mission offsets in scm file
     SUPPORTED_10US static bool &bUsingAMultiScriptFile;
     SUPPORTED_10US static int &StoreVehicleIndex;
     SUPPORTED_10US static bool &StoreVehicleWasRandom;
@@ -207,12 +234,9 @@ public:
     SUPPORTED_10US static int *SuppressedVehicleModels; // static int SuppressedVehicleModels[40]
     SUPPORTED_10US static CEntity **InvisibilitySettingArray; // static CEntity *InvisibilitySettingArray[20]
     SUPPORTED_10US static tBuildingSwap *BuildingSwapArray; // static tBuildingSwap BuildingSwapArray[25]
-    SUPPORTED_10US static unsigned short &NumberOfIntroRectanglesThisFrame;
     SUPPORTED_10US static unsigned short &MessageWidth;
     SUPPORTED_10US static unsigned short &MessageCentre;
     SUPPORTED_10US static bool &bUseMessageFormatting;
-    SUPPORTED_10US static bool &UseTextCommands;
-    SUPPORTED_10US static unsigned short &NumberOfIntroTextLinesThisFrame;
     SUPPORTED_10US static unsigned short &NumberOfUsedObjects;
     SUPPORTED_10US static tUsedObject *UsedObjectArray; // static tUsedObject UsedObjectArray[395]
     SUPPORTED_10US static int &LastRandomPedId;
@@ -234,10 +258,15 @@ public:
     SUPPORTED_10US static CStuckCarCheck &StuckCars;
     SUPPORTED_10US static CScriptsForBrains &ScriptsForBrains;
     SUPPORTED_10US static tScriptSphere *ScriptSphereArray; // static CScriptSphere ScriptSphereArray[16]
-    SUPPORTED_10US static tScriptText *IntroTextLines; // static tScriptText IntroTextLines[96]
-    SUPPORTED_10US static tScriptRectangle *IntroRectangles; // static tScriptRectangle IntroRectangles[128]
-    SUPPORTED_10US static CSprite2d *ScriptSprites; // static CSprite2d ScriptSprites[128]
     SUPPORTED_10US static tScriptSearchlight *ScriptSearchLightArray; // static tScriptSearchlight ScriptSearchLightArray[8]
+
+    // script drawing
+    SUPPORTED_10US static eUseTextCommandState& UseTextCommands;
+    SUPPORTED_10US static unsigned short& NumberOfIntroTextLinesThisFrame;
+    SUPPORTED_10US static tScriptText (&IntroTextLines)[96];
+    SUPPORTED_10US static unsigned short& NumberOfIntroRectanglesThisFrame;
+    SUPPORTED_10US static tScriptRectangle (&IntroRectangles)[128];
+    SUPPORTED_10US static CSprite2d (&ScriptSprites)[128];
 
     SUPPORTED_10US static int AddScriptCheckpoint(float at_X, float at_Y, float at_Z, float PointTo_X, float PointTo_Y, float PointTo_Z, float radius, int type);
     SUPPORTED_10US static int AddScriptEffectSystem(FxSystem_c *a1);
@@ -318,4 +347,4 @@ public:
 
 #include "meta/meta.CTheScripts.h"
 
-SUPPORTED_10US extern int* ScriptParams; // 32
+SUPPORTED_10US extern int (&ScriptParams)[32];

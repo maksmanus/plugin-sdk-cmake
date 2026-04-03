@@ -46,7 +46,7 @@ unsigned int &CStreaming::ms_streamingBufferSize = *reinterpret_cast<unsigned in
 char *&CStreaming::ms_pStreamingBuffer = *reinterpret_cast<char **>(GLOBAL_ADDRESS_BY_VERSION(0x8E4CAC, 0, 0, 0, 0, 0));
 unsigned int &CStreaming::ms_memoryUsed = *reinterpret_cast<unsigned int *>(GLOBAL_ADDRESS_BY_VERSION(0x8E4CB4, 0, 0, 0, 0, 0));
 unsigned int &CStreaming::ms_numModelsRequested = *reinterpret_cast<unsigned int *>(GLOBAL_ADDRESS_BY_VERSION(0x8E4CB8, 0, 0, 0, 0, 0));
-CStreamingInfo *CStreaming::ms_aInfoForModel = reinterpret_cast<CStreamingInfo *>(GLOBAL_ADDRESS_BY_VERSION(0x8E4CC0, 0, 0, 0, 0, 0));
+CStreamingInfo *CStreaming::ms_aInfoForModel = *reinterpret_cast<CStreamingInfo**>(0x408B25); // limit adjusters support - get from reference in CStreaming::RemoveModel
 bool &CStreaming::ms_disableStreaming = *reinterpret_cast<bool *>(GLOBAL_ADDRESS_BY_VERSION(0x9654B0, 0, 0, 0, 0, 0));
 int &CStreaming::ms_bIsInitialised = *reinterpret_cast<int *>(GLOBAL_ADDRESS_BY_VERSION(0x9654B8, 0, 0, 0, 0, 0));
 bool &CStreaming::m_bBoatsNeeded = *reinterpret_cast<bool *>(GLOBAL_ADDRESS_BY_VERSION(0x9654BC, 0, 0, 0, 0, 0));
@@ -87,8 +87,8 @@ void CStreaming::AddModelsToRequestList(CVector const *posn, unsigned int Stream
 int addrof(CStreaming::AddToLoadedVehiclesList) = ADDRESS_BY_VERSION(0x408000, 0, 0, 0, 0, 0);
 int gaddrof(CStreaming::AddToLoadedVehiclesList) = GLOBAL_ADDRESS_BY_VERSION(0x408000, 0, 0, 0, 0, 0);
 
-bool CStreaming::AddToLoadedVehiclesList() {
-    return plugin::CallAndReturnDynGlobal<bool>(gaddrof(CStreaming::AddToLoadedVehiclesList));
+bool CStreaming::AddToLoadedVehiclesList(int modelID) {
+    return plugin::CallAndReturnDynGlobal<bool, int>(gaddrof(CStreaming::AddToLoadedVehiclesList), modelID);
 }
 
 int addrof(CStreaming::AreAnimsUsedByRequestedModels) = ADDRESS_BY_VERSION(0x407AD0, 0, 0, 0, 0, 0);

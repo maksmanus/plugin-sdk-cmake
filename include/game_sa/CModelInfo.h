@@ -19,8 +19,7 @@ class PLUGIN_API CModelInfo
 {
 public:
 	// variables
-	//static CBaseModelInfo *ms_modelInfoPtrs[20000]; Use GetModelInfo(int index) to get model info by id
-	static CBaseModelInfo **ms_modelInfoPtrs;
+	static CBaseModelInfo **ms_modelInfoPtrs; // 20000, might be extended by limit adjusters
 
 	// functions
 	static void ReInit2dEffects();
@@ -35,11 +34,11 @@ public:
 	static CVehicleModelInfo* AddVehicleModel(int index);
 	static class CPedModelInfo* AddPedModel(int index);
 	static void Initialise();
-	static CBaseModelInfo* GetModelInfo(char* name, int* index);
+	static CBaseModelInfo* GetModelInfo(const char* name, int* index);
 	static CBaseModelInfo* GetModelInfoFromHashKey(unsigned int arg0, int* index);
-	static CBaseModelInfo* GetModelInfoUInt16(char* name, unsigned short* int16index);
+	static CBaseModelInfo* GetModelInfoUInt16(const char* name, unsigned short* int16index);
 	// get model in range (search for model only in range (min;max))
-	static CBaseModelInfo* GetModelInfo(char* name, int minIndex, int maxInedx);
+	static CBaseModelInfo* GetModelInfo(const char* name, int minIndex, int maxInedx);
 	static int* Get2dEffectStore();
 	static bool IsBoatModel(int index);
 	static bool IsCarModel(int index);
@@ -55,5 +54,11 @@ public:
 	// return -1 if model is not a vehicle model otherwise returns vehicle model type
 	static int IsVehicleModelType(int index);
 
-    static CBaseModelInfo *GetModelInfo(int index);
+    static inline CBaseModelInfo* GetModelInfo(int index) {
+        return ms_modelInfoPtrs[index];
+    }
+
+	static inline CColModel* GetColModel(int id) {
+		return ms_modelInfoPtrs[id]->m_pColModel;
+	}
 };

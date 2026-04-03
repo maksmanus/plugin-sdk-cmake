@@ -6,7 +6,7 @@
 */
 #include "CPathFind.h"
 
-CPathFind &ThePaths = **(CPathFind **)(0x40CA27);
+CPathFind &ThePaths = **(CPathFind**)(0x40CA27); // limit adjusters support - get from reference in CStreaming::ConvertBufferToObject
 
 void CPathFind::DoPathSearch(unsigned char pathType, CVector origin, CNodeAddress originAddr, 
 		CVector target, CNodeAddress *pResultNodes, short *pNodesCount, int maxNodesToFind, float *pDistance, 
@@ -20,7 +20,29 @@ void CPathFind::DoPathSearch(unsigned char pathType, CVector origin, CNodeAddres
 		waterPath);
 }
 
+bool CPathFind::IsWaterNodeNearby(CVector position, float radius) {
+	return plugin::CallMethodAndReturn<bool, 0x450DE0, CPathFind*, CVector, float>(this, position, radius);
+}
+
+void CPathFind::SetPathsNeededAtPosition(const CVector& pos) {
+	plugin::CallMethod<0x44DCD0, CPathFind*, const CVector&>(this, pos);
+}
+
+void CPathFind::UpdateStreaming(bool bForceStreaming) {
+	plugin::CallMethod<0x450A60, CPathFind*, bool>(this, bForceStreaming);
+}
+
 CPathNode *CPathFind::GetPathNode(CNodeAddress address)
 {
 	return ((CPathNode *(__thiscall *)(CPathFind *, CNodeAddress))0x420AC0)(this, address);
+}
+
+// 0x5D34C0
+bool CPathFind::Save() {
+	return plugin::CallAndReturn<bool, 0x5D34C0>();
+}
+
+// 0x5D3500
+bool CPathFind::Load() {
+	return plugin::CallAndReturn<bool, 0x5D3500>();
 }

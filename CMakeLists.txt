@@ -2,18 +2,22 @@ cmake_minimum_required(VERSION 3.11)
 project("plUGIN SDK CMAKE VERSION" LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_compile_definitions(GTASA)
 add_compile_definitions(RW)
 add_compile_options(/MP)
 add_compile_options(/w)
 
 # find includes
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/game_sa)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/hooking)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/injector)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/stb)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/safetyhook)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/shared)
+include_directories(plugin-sdk PUBLIC 
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/game_sa"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/game_sa/rw"
+    "${CMAKE_CURRENT_SOURCE_DIR}/hooking"
+    "${CMAKE_CURRENT_SOURCE_DIR}/injector"
+    "${CMAKE_CURRENT_SOURCE_DIR}/stb"
+    "${CMAKE_CURRENT_SOURCE_DIR}/safetyhook"
+    "${CMAKE_CURRENT_SOURCE_DIR}/shared"
+)
 
 file(GLOB_RECURSE ALL_INCLUDE_DIRS LIST_DIRECTORIES true ${CMAKE_CURRENT_SOURCE_DIR}/shared/*)
 include_directories(${ALL_INCLUDE_DIRS})

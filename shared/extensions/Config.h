@@ -10,15 +10,11 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
-#if defined(GTA3) || defined(GTAVC) || defined(GTASA) || \
-defined(GTA3_UNREAL) || defined(GTAVC_UNREAL) || defined(GTASA_UNREAL)
-#include "CVector.h"
-#include "CVector2D.h"
-#elif defined(GTAIV) || defined(GTA2)
-#include "CVector.h"
-#endif
+
 #include "CRect.h"
 #include "CRGBA.h"
+#include "CVector.h"
+#include "CVector2D.h"
 #include "Paths.h"
 
 namespace plugin {
@@ -106,6 +102,7 @@ namespace plugin {
         bool _dataRead;
         bool _usePrecision;
         bool _writeOnly;
+        std::string _streamCommentBuffer;
 
         config_parameter _emptyParameter;
 
@@ -118,10 +115,7 @@ namespace plugin {
         void writeData();
 
         config_file &operator<<(std::string comment) {
-            if (paramLines.empty())
-                paramLines.emplace_back("", "", false, comment);
-            else
-                paramLines.back().comment.append(comment);
+            _streamCommentBuffer.append(comment);
             return *this;
         }
 
@@ -142,12 +136,21 @@ namespace plugin {
             _usePrecision = false;
             _writeOnly = writeOnly;
 
+#ifdef UNICODE
+            std::wstring str = PLUGIN_FILENAME;
+            std::size_t dotPosition = str.find_last_of('.');
+            if (dotPosition != std::wstring::npos) {
+                std::wstring res = str.substr(0, dotPosition) + L".ini";
+                open(PLUGIN_PATH(res.c_str()));
+            }
+#else
             std::string str = PLUGIN_FILENAME;
             std::size_t dotPosition = str.find_last_of('.');
             if (dotPosition != std::string::npos) {
                 std::string res = str.substr(0, dotPosition) + ".ini";
-                open(PLUGIN_PATH((char*)res.c_str()));
+                open(PLUGIN_PATH(res.c_str()));
             }
+#endif
         }
 
         void open(std::string fileName);

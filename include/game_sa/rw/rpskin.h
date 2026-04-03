@@ -1,10 +1,6 @@
-/*
-    Plugin-SDK (Grand Theft Auto San Andreas) header file
-    Authors: GTA Community. See more here
-    https://github.com/DK22Pac/plugin-sdk
-    Do not delete this comment block. Respect others' work!
-*/
-#pragma once
+
+#ifndef RPSKIN_H
+#define RPSKIN_H
 
 /**
  * \defgroup rpskin RpSkin
@@ -20,6 +16,7 @@
 #include "rpworld.h"
 
 #include "rpcriter.h"
+#include "rpskin.rpe"
 
 #include "rphanim.h"
 
@@ -61,6 +58,68 @@ struct RwMatrixWeights
  */
 typedef struct RpSkin RpSkin;
 
+/*===========================================================================*
+ *--- Plugin API Functions --------------------------------------------------*
+ *===========================================================================*/
+#ifdef __cplusplus
+extern "C"
+{
+#endif /* __cplusplus */
+
+/*---------------------------------------------------------------------------*
+ *-   Plugin functions                                                      -*
+ *---------------------------------------------------------------------------*/
+extern void RpSkinSetFreeListCreateParams(
+      RwInt32 blockSize, RwInt32 numBlocksToPrealloc );
+
+extern RwBool
+RpSkinPluginAttach(void);
+
+/*---------------------------------------------------------------------------*
+ *-   Skin Atomic functions                                                 -*
+ *---------------------------------------------------------------------------*/
+extern RpAtomic *
+RpSkinAtomicSetHAnimHierarchy( RpAtomic *atomic,
+                               RpHAnimHierarchy *hierarchy );
+
+extern RpHAnimHierarchy *
+RpSkinAtomicGetHAnimHierarchy( const RpAtomic *atomic );
+
+/*---------------------------------------------------------------------------*
+ *-   Skin Geometry functions                                               -*
+ *---------------------------------------------------------------------------*/
+extern RpGeometry *
+RpSkinGeometrySetSkin( RpGeometry *geometry,
+                       RpSkin *skin );
+
+extern RpSkin *
+RpSkinGeometryGetSkin( RpGeometry *geometry );
+
+extern RpSkin *
+RpSkinCreate( RwUInt32 numVertices,
+              RwUInt32 numBones,
+              RwMatrixWeights *vertexWeights,
+              RwUInt32 *vertexIndices,
+              RwMatrix *inverseMatrices );
+
+extern RpSkin *
+RpSkinDestroy( RpSkin *skin );
+
+extern RwUInt32
+RpSkinGetNumBones( RpSkin *skin );
+
+extern const RwMatrixWeights *
+RpSkinGetVertexBoneWeights( RpSkin *skin );
+
+extern const RwUInt32 *
+RpSkinGetVertexBoneIndices( RpSkin *skin );
+
+extern const RwMatrix *
+RpSkinGetSkinToBoneMatrices( RpSkin *skin );
+
+extern RwBool
+RpSkinIsSplit( RpSkin *skin );
+
 /*---------------------------------------------------------------------------*
  *-   Skin pipeline                                                         -*
  *---------------------------------------------------------------------------*/
@@ -84,6 +143,56 @@ enum RpSkinType
     rpSKINTYPEFORCEENUMSIZEINT = RWFORCEENUMSIZEINT
 };
 typedef enum RpSkinType RpSkinType;
+
+extern RpAtomic *
+RpSkinAtomicSetType( RpAtomic *atomic,
+                     RpSkinType type );
+
+extern RpSkinType
+RpSkinAtomicGetType( RpAtomic *atomic );
+
+/*---------------------------------------------------------------------------*
+ *-   Internal API                                                          -*
+ *---------------------------------------------------------------------------*/
+extern RpGeometry *
+_rpSkinInitialize(RpGeometry *geometry);
+
+extern RpGeometry *
+_rpSkinDeinitialize(RpGeometry *geometry);
+
+extern RwUInt8 *
+_rpSkinGetMeshBoneRemapIndices( RpSkin *skin );
+
+extern RwUInt8 *
+_rpSkinGetMeshBoneRLECount( RpSkin *skin );
+
+extern RwUInt8 *
+_rpSkinGetMeshBoneRLE( RpSkin *skin );
+
+extern RpSkin *
+_rpSkinSplitDataCreate( RpSkin *skin, RwUInt32 boneLimit,
+                        RwUInt32 numMatrices, RwUInt32 numMeshes,
+                        RwUInt32 numRLE );
+
+extern RwBool
+_rpSkinSplitDataDestroy( RpSkin *skin );
+
+/*---------------------------------------------------------------------------*/
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+/*---------------------------------------------------------------------------*
+ *-   Backwards macros                                                      -*
+ *---------------------------------------------------------------------------*/
+
+#define RpSkinAtomicGetSkin(_a)                                         \
+    RpSkinGeometryGetSkin(RpAtomicGetGeometry(_a))
+
+/*---------------------------------------------------------------------------*/
+
+/*---- start: ./d3d9/skinplatform.h----*/
 
 /**
  * \defgroup rpskind3d9 D3D9
@@ -136,3 +245,47 @@ enum RpSkinD3D9Pipeline
     rpSKIND3D9PIPELINEFORCEENUMSIZEINT = RWFORCEENUMSIZEINT
 };
 typedef enum RpSkinD3D9Pipeline RpSkinD3D9Pipeline;
+
+/*===========================================================================*
+ *--- D3D9 Plugin API Functions ----------------------------------------------*
+ *===========================================================================*/
+#ifdef __cplusplus
+extern "C"
+{
+#endif /* __cplusplus */
+/*---------------------------------------------------------------------------*/
+
+extern RxPipeline *
+RpSkinGetD3D9Pipeline( RpSkinD3D9Pipeline D3D9Pipeline );
+
+extern RxNodeDefinition *
+RxNodeDefinitionGetD3D9SkinAtomicAllInOne(void);
+
+/* Vertex shader pipeline */
+extern void
+_rxD3D9SkinVertexShaderSetBeginCallBack(RxPipelineNode *node,
+                                _rxD3D9VertexShaderBeginCallBack beginCallback);
+extern void
+_rxD3D9SkinVertexShaderSetLightingCallBack(RxPipelineNode *node,
+                                _rxD3D9VertexShaderLightingCallBack lightingCallback);
+extern void
+_rxD3D9SkinVertexShaderSetGetMaterialShaderCallBack(RxPipelineNode *node,
+                                _rxD3D9VertexShaderGetMaterialShaderCallBack getmaterialshaderCallback);
+extern void
+_rxD3D9SkinVertexShaderSetMeshRenderCallBack(RxPipelineNode *node,
+                                _rxD3D9VertexShaderMeshRenderCallBack meshRenderCallback);
+extern void
+_rxD3D9SkinVertexShaderSetEndCallBack(RxPipelineNode *node,
+                                _rxD3D9VertexShaderEndCallBack endCallback);
+
+
+/*---------------------------------------------------------------------------*/
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+/*---- end: ./d3d9/skinplatform.h----*/
+
+#endif /* RPSKIN_H */
+
+

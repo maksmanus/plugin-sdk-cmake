@@ -6,7 +6,7 @@
 */
 #include "CModelInfo.h"
 
-CBaseModelInfo **CModelInfo::ms_modelInfoPtrs = (CBaseModelInfo**)0xA9B0C8;
+CBaseModelInfo **CModelInfo::ms_modelInfoPtrs = *(CBaseModelInfo***)0x40CD67; // limit adjusters support - get from reference in CStreaming::RequestModelStream
 
 // Converted from stdcall void CModelInfo::ReInit2dEffects(void) 0x4C63B0
 void CModelInfo::ReInit2dEffects()
@@ -81,9 +81,9 @@ void CModelInfo::Initialise()
 }
 
 // Converted from stdcall CBaseModelInfo* CModelInfo::GetModelInfo(char* name,int *index) 0x4C5940
-CBaseModelInfo* CModelInfo::GetModelInfo(char* name, int* index)
+CBaseModelInfo* CModelInfo::GetModelInfo(const char* name, int* index)
 {
-	return ((CBaseModelInfo* (__cdecl *)(char*, int*))0x4C5940)(name, index);
+	return ((CBaseModelInfo* (__cdecl *)(const char*, int*))0x4C5940)(name, index);
 }
 
 // Converted from stdcall CBaseModelInfo* CModelInfo::GetModelInfoFromHashKey(uint,int *index) 0x4C59B0
@@ -93,15 +93,15 @@ CBaseModelInfo* CModelInfo::GetModelInfoFromHashKey(unsigned int arg0, int* inde
 }
 
 // Converted from stdcall CBaseModelInfo* CModelInfo::GetModelInfoUInt16(char *name,ushort *int16index) 0x4C59F0
-CBaseModelInfo* CModelInfo::GetModelInfoUInt16(char* name, unsigned short* int16index)
+CBaseModelInfo* CModelInfo::GetModelInfoUInt16(const char* name, unsigned short* int16index)
 {
-	return ((CBaseModelInfo* (__cdecl *)(char*, unsigned short*))0x4C59F0)(name, int16index);
+	return ((CBaseModelInfo* (__cdecl *)(const char*, unsigned short*))0x4C59F0)(name, int16index);
 }
 
 // Converted from stdcall CBaseModelInfo* CModelInfo::GetModelInfo(char* name,int minIndex,int maxInedx) 0x4C5A20
-CBaseModelInfo* CModelInfo::GetModelInfo(char* name, int minIndex, int maxInedx)
+CBaseModelInfo* CModelInfo::GetModelInfo(const char* name, int minIndex, int maxInedx)
 {
-	return ((CBaseModelInfo* (__cdecl *)(char*, int, int))0x4C5A20)(name, minIndex, maxInedx);
+	return ((CBaseModelInfo* (__cdecl *)(const char*, int, int))0x4C5A20)(name, minIndex, maxInedx);
 }
 
 // Converted from stdcall void* CModelInfo::Get2dEffectStore(void) 0x4C5A60
@@ -180,8 +180,4 @@ bool CModelInfo::IsTrailerModel(int index)
 int CModelInfo::IsVehicleModelType(int index)
 {
 	return ((int (__cdecl *)(int))0x4C5C80)(index);
-}
-
-CBaseModelInfo *CModelInfo::GetModelInfo(int index) {
-    return plugin::CallAndReturn<CBaseModelInfo *, 0x403DA0, int>(index);
 }

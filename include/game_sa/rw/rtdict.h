@@ -1,10 +1,7 @@
-/*
-    Plugin-SDK (Grand Theft Auto San Andreas) header file
-    Authors: GTA Community. See more here
-    https://github.com/DK22Pac/plugin-sdk
-    Do not delete this comment block. Respect others' work!
-*/
-#pragma once
+#ifndef RTDICT_H
+#define RTDICT_H
+
+#include <rtdict.rpe>          /* automatically generated header file */
 
 /* Doxygen plugin groups. */
 
@@ -20,7 +17,20 @@
  Includes
  */
 
-#include "rwplcore.h"
+#include <rwplcore.h>
+
+/* RWPUBLIC */
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif /* __cplusplus */
+
+#ifdef _RWDLL
+#define RTDICTSCHEMADECLARE(schema) extern __declspec(dllimport) RtDictSchema schema;
+#else
+#define RTDICTSCHEMADECLARE(schema) extern RtDictSchema schema;
+#endif
 
 /**
  * \ingroup rtdict
@@ -225,3 +235,70 @@ struct RtDictSchema
     RtDictEntryStreamWriteCallBack *streamWriteCB;
         /**< Callback used to stream out an entry */
 };
+
+/* Dictionary schema functions */
+extern RtDictSchema *
+RtDictSchemaInit(RtDictSchema *schema);
+
+extern RwBool
+RtDictSchemaDestruct(RtDictSchema *schema);
+
+extern RtDict *
+RtDictSchemaStreamReadDict(RtDictSchema *schema, RwStream *stream);
+
+extern RtDict *
+RtDictSchemaCreateDict(RtDictSchema *schema);
+
+extern RtDictSchema *
+RtDictSchemaAddDict(RtDictSchema *schema, RtDict *dict);
+
+extern RtDictSchema *
+RtDictSchemaRemoveDict(RtDictSchema *schema, RtDict *dict);
+
+extern RwBool
+RtDictSchemaForAllDictionaries(RtDictSchema *schema, RtDictCallBack *callback, RtDictEntryType data);
+
+extern RtDict *
+RtDictSchemaGetCurrentDict(RtDictSchema *schema);
+
+extern RtDictSchema *
+RtDictSchemaSetCurrentDict(RtDictSchema *schema, RtDict *dict);
+
+/* Dictionary functions */
+extern RwBool
+RtDictDestroy(RtDict *dictionary);
+
+extern RtDictEntryType
+RtDictAddEntry(RtDict *dictionary, RtDictEntryType entry);
+
+extern RtDictEntryType
+RtDictFindNamedEntry(RtDict *dictionary, const RwChar *name);
+
+extern const RtDict *
+RtDictForAllEntries(const RtDict *dictionary, RtDictEntryCallBack *callBack, RtDictEntryType data);
+
+extern RtDict *
+RtDictRemoveEntry(RtDict *dictionary, RtDictEntryType entry);
+
+extern const RtDict *
+RtDictStreamWrite(const RtDict *dictionary, RwStream *stream);
+
+extern RwUInt32
+RtDictStreamGetSize(const RtDict *dictionary);
+
+/* RWPUBLICEND */
+
+/* Stealth */
+extern RtDict *
+_rtDictSchemaInitDict(RtDictSchema *schema, RtDict *dictionary);
+
+extern RwBool
+_rtDictDestruct(RtDict *dictionary);
+
+
+#ifdef    __cplusplus
+}
+#endif                          /* __cplusplus */
+
+
+#endif /* RTDICT_H */

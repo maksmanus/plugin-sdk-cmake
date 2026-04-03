@@ -14,6 +14,21 @@
 #include "CRGBA.h"
 #include "CPool.h"
 
+enum eVehicleType {
+	VEHICLE_AUTOMOBILE,
+	VEHICLE_MTRUCK,
+	VEHICLE_QUAD,
+	VEHICLE_HELI,
+	VEHICLE_PLANE,
+	VEHICLE_BOAT,
+	VEHICLE_TRAIN,
+	VEHICLE_FHELI,
+	VEHICLE_FPLANE,
+	VEHICLE_BIKE,
+	VEHICLE_BMX,
+	VEHICLE_TRAILER
+};
+
 enum VehicleUpgradePosn {
 	UPGRADE_BONNET,
 	UPGRADE_BONNET_LEFT,
@@ -51,7 +66,7 @@ public:
 private:
 	char _pad3A[2];
 public:
-	unsigned int m_nVehicleType;
+	eVehicleType m_nVehicleType;
 	float m_fWheelSizeFront;
 	float m_fWheelSizeRear;
 	short m_nWheelModelIndex;
@@ -124,12 +139,17 @@ public:
 	static RwObjectNameIdAssocation *ms_vehicleDescs;
 
 	// remap texture
-	static RwTexture *ms_pRemapTexture;
+	static RwTexture *&ms_pRemapTexture;
 	// vehiclelights128 texture
-	static RwTexture *ms_pLightsTexture;
+	static RwTexture *&ms_pLightsTexture;
 	// vehiclelightson128 texture
-	static RwTexture *ms_pLightsOnTexture;
+	static RwTexture *&ms_pLightsOnTexture;
+	// defualt white texture
+	static RwTexture *&ms_pWhiteTexture;
 	
+	// vehicle.txd
+	static RwTexDictionary *&ms_pVehicleTxd;
+
 	// color of currently rendered car
 	// static unsigned char ms_currentCol[4];
 	static unsigned char *ms_currentCol;
@@ -276,5 +296,7 @@ public:
     int GetNumDoors();
 };
 
-VALIDATE_SIZE(CVehicleModelInfo::CVehicleStructure, 0x314);
+VALIDATE_OFFSET(CVehicleModelInfo, field_51, 0x51);
 VALIDATE_SIZE(CVehicleModelInfo, 0x308);
+
+VALIDATE_SIZE(CVehicleModelInfo::CVehicleStructure, 0x314);

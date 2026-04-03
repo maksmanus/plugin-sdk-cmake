@@ -57,5 +57,7 @@ SUPPORTED_10US bool TidyUpModelInfo2(CEntity *entity, bool a2);
 SUPPORTED_10US void ValidateVersion();
 SUPPORTED_10US void D3DDeviceRestoreCallback();
 SUPPORTED_10US bool DoHaspChecks();
+extern RsEventStatus RsEventHandler(RsEvent event, void* param);
+extern void RenderScene();
 
 #include "meta/meta.CGame.h"

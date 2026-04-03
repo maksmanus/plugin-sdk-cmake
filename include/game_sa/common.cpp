@@ -597,3 +597,15 @@ void DoRWStuffEndOfFrame() {
 void RsCameraShowRaster(RwCamera* camera) {
     plugin::Call<0x619440>(camera);
 }
+
+void* GetD3DDevice() {
+    return *reinterpret_cast<void**>(0xC97C28);
+}
+
+_D3DMATRIX* GetD3DViewTransform() {
+    return reinterpret_cast<_D3DMATRIX*>(0xC9BC80);
+}
+
+_D3DMATRIX* GetD3DProjTransform() {
+    return reinterpret_cast<_D3DMATRIX*>(0x8E2458);
+}

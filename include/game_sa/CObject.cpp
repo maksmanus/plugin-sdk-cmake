@@ -6,6 +6,38 @@
 */
 #include "CObject.h"
 
+void* CObject::operator new(unsigned int size) {
+    return plugin::CallAndReturn<void*, 0x5A1EE0, unsigned int>(size);
+}
+
+void* CObject::operator new(unsigned int size, int poolRef) {
+    return plugin::CallAndReturn<void*, 0x5A1EF0, unsigned int, int>(size, poolRef);
+}
+
+void CObject::operator delete(void* data) {
+    plugin::Call<0x5A1F20, void*>(data);
+}
+
+CObject::CObject() : CPhysical(plugin::dummy) {
+    plugin::CallMethod<0x5A1D10, CObject*>(this);
+}
+
+CObject::CObject(int32_t model, bool create) : CPhysical(plugin::dummy) {
+    plugin::CallMethod<0x5A1D70, CObject*, int32_t, bool>(this, model, create);
+}
+
+CObject::CObject(CDummyObject* dummy) : CPhysical(plugin::dummy) {
+    plugin::CallMethod<0x5A1DF0, CObject*, CDummyObject*>(this, dummy);
+}
+
+CObject::~CObject() {
+    plugin::CallMethod<0x59F660, CObject*>(this);
+}
+
+void CObject::SetIsStatic(bool isStatic) {
+    plugin::CallMethod<0x5A0760, CObject*, bool>(this, isStatic);
+}
+
 // Converted from thiscall void CObject::ProcessGarageDoorBehaviour(void) 0x44A4D0
 void CObject::ProcessGarageDoorBehaviour() {
     ((void(__thiscall *)(CObject*))0x44A4D0)(this);

@@ -20,7 +20,6 @@ namespace plugin {
         static constexpr int32_t numChannels = 128;
 
         struct BassQueue {
-            int32_t entityIndex;
             uint8_t volume;
             uint32_t freq;
             int32_t sample;
@@ -34,7 +33,6 @@ namespace plugin {
             bool played;
 
             BassQueue() {
-                entityIndex = -1;
                 volume = 0;
                 freq = 0;
                 sample = -1;
@@ -50,10 +48,8 @@ namespace plugin {
         };
     private:
         struct BassStream {
-            int32_t entityIndex;
-
             int32_t channelId;
-            HSTREAM stream;
+            HCHANNEL handle;
             int32_t sampleId;
             struct {
                 HFX reverb;
@@ -62,27 +58,45 @@ namespace plugin {
             float framesToPlay;
             uint8_t volume;
             bool is3d;
+            uint32_t loopCount;
+            uint32_t loopStart;
+            int32_t loopEnd;
+            BassSampleManager* owner;
+            int32_t freq;
 
             BassStream() {
-                entityIndex = -1;
                 channelId = 0;
+                handle = 0;
                 sampleId = 0;
                 fx.reverb = 0;
                 framesToPlay = 0;
                 volume = 0;
                 is3d = false;
+                loopCount = 0;
+                loopStart = 0;
+                loopEnd = -1;
+                owner = nullptr;
+                freq = 0;
             }
         };
         
         struct BassSample {
-            HSAMPLE sample;
+            std::string name;
+            uint32_t sample;
+            HSAMPLE handle;
             uint32_t loopStart;
             int32_t loopEnd;
+            bool isStream;
+			uint32_t streamFreq;
 
             BassSample() {
+                name = "";
                 sample = 0;
+                handle = 0;
                 loopStart = 0;
                 loopEnd = -1;
+                isStream = false;
+				streamFreq = 44100;
             }
         };
 
@@ -111,12 +125,18 @@ namespace plugin {
             std::function<bool()> stop;
         } settings;
 
+        BassSample* GetSample(uint32_t sample) {
+            return &samples[sample];
+        }
+
     private:
         void PauseChannel(uint32_t channel);
 
     public:
-        inline BassSampleManager() {
-            BASS_Init(-1, 44100, 0, NULL, NULL);
+        inline BassSampleManager(uint32_t freq = 44100) {
+            BASS_SetConfig(BASS_CONFIG_BUFFER, 50);
+            BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 10);
+            BASS_Init(-1, freq, BASS_DEVICE_3D | BASS_DEVICE_FREQ, NULL, NULL);
 
             streams = {};
             samples = {};
@@ -131,15 +151,18 @@ namespace plugin {
 
         inline ~BassSampleManager() {
             for (auto& it : samples)
-                BASS_SampleFree(it.sample);
+                BASS_SampleFree(it.handle);
 
             for (auto& it : streams) {
-                BASS_StreamFree(it.stream);
+                BASS_StreamFree(it.handle);
             }
-            BASS_Free();
         }
 
-        void LoadSample(std::string const& file, uint32_t loopStart = 0, int32_t loopEnd = -1);
+        void FeedSample(std::string const& name, void* buffer, uint32_t length);
+		uint32_t CreateSample(std::string const& name, uint32_t channels, uint32_t freq);
+        uint32_t LoadSample(std::string const& file, uint32_t loopStart = 0, int32_t loopEnd = -1);
+        void LoadAllSamplesFromFolder(std::string const& path);
+        BassSample* GetSample(std::string const& name);
         void ClearSamples();
         void SetChannelFrequency(uint32_t channel, int32_t freq);
         void SetChannel3DDistances(uint32_t channel, float min, float max);
@@ -148,14 +171,16 @@ namespace plugin {
         bool GetChannelUsedFlag(uint32_t channel);
         void SetChannelLoopCount(uint32_t channel, uint32_t count);
         uint32_t GetChannelPosition(uint32_t channel);
-        void SetChannelPosition(uint32_t channel, uint32_t pos);
+        void SetChannelPosition(uint32_t channel, uint32_t pos, uint32_t mode);
         void SetChannelLoopPoints(uint32_t channel, uint32_t loopStart, int32_t loopEnd);
+        uint32_t GetChannelLength(uint32_t channel);
         uint32_t GetSampleLength(uint32_t sample);
         void SetChannelFramesToPlay(uint32_t channel, float frames);
         void SetChannel3D(uint32_t channel, bool on);
-        void SetChannelEntityIndex(uint32_t channel, uint32_t entityIndex);
+        uint32_t GetChannelFrequency(uint32_t channel);
         uint32_t GetSampleBaseFrequency(uint32_t sample);
-        void AddSampleToQueue(uint32_t entityIndex, uint8_t vol, uint32_t freq, uint32_t sample, bool loop, CVector const& pos, uint32_t framesToPlay = 8, bool is3d = true);
+        uint32_t AddSampleToQueue(uint8_t vol, uint32_t freq, std::string const& sample, bool loop, CVector const& pos, uint32_t framesToPlay = 8, bool is3d = true);
+        uint32_t AddSampleToQueue(uint8_t vol, uint32_t freq, uint32_t sample, bool loop, CVector const& pos, uint32_t framesToPlay = 8, bool is3d = true);
         void AddSampleToQueue(BassQueue const& queue);     
         bool InitialiseChannel(uint32_t channel, uint32_t sample);
         void StartChannel(uint32_t channel);

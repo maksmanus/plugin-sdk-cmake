@@ -1,10 +1,6 @@
-/*
-    Plugin-SDK (Grand Theft Auto San Andreas) header file
-    Authors: GTA Community. See more here
-    https://github.com/DK22Pac/plugin-sdk
-    Do not delete this comment block. Respect others' work!
-*/
-#pragma once
+
+#ifndef RPMATFX_H
+#define RPMATFX_H
 
 /*===========================================================================*
  *--- Include files ---------------------------------------------------------*
@@ -14,6 +10,9 @@
 #include "rpworld.h"
 
 /*---- start: ./matfx.h----*/
+
+#ifndef RPMATFX_MATFX_H
+#define RPMATFX_MATFX_H
 
 
 /**
@@ -50,6 +49,161 @@ enum RpMatFXMaterialFlags
 };
 typedef enum RpMatFXMaterialFlags  RpMatFXMaterialFlags;
 
+
+/*===========================================================================*
+ *--- Plugin API Functions --------------------------------------------------*
+ *===========================================================================*/
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif /* __cplusplus */
+
+/*--- Plugin functions ------------------------------------------------------*/
+extern void
+RpMatFXMaterialDataSetFreeListCreateParams( RwInt32 blockSize,
+                                            RwInt32 numBlocksToPrealloc );
+
+extern RwBool
+RpMatFXPluginAttach( void );
+
+/*--- Setup functions -------------------------------------------------------*/
+extern RpAtomic *
+RpMatFXAtomicEnableEffects( RpAtomic *atomic );
+
+extern RwBool
+RpMatFXAtomicQueryEffects( RpAtomic *atomic );
+
+extern RpWorldSector *
+RpMatFXWorldSectorEnableEffects( RpWorldSector *worldSector );
+
+extern RwBool
+RpMatFXWorldSectorQueryEffects( RpWorldSector *worldSector );
+
+extern RpMaterial *
+RpMatFXMaterialSetEffects( RpMaterial *material,
+                           RpMatFXMaterialFlags flags );
+
+
+/*--- Setup Effects ---------------------------------------------------------*/
+extern RpMaterial *
+RpMatFXMaterialSetupBumpMap( RpMaterial *material,
+                             RwTexture *texture,
+                             RwFrame *frame,
+                             RwReal coef );
+
+extern RpMaterial *
+RpMatFXMaterialSetupEnvMap( RpMaterial *material,
+                            RwTexture *texture,
+                            RwFrame *frame,
+                            RwBool useFrameBufferAlpha,
+                            RwReal coef );
+
+extern RpMaterial *
+RpMatFXMaterialSetupDualTexture( RpMaterial *material,
+                                 RwTexture *texture,
+                                 RwBlendFunction srcBlendMode,
+                                 RwBlendFunction dstBlendMode );
+
+/*--- Tinker with effects ---------------------------------------------------*/
+extern RpMatFXMaterialFlags
+RpMatFXMaterialGetEffects( const RpMaterial *material );
+
+/*--- Bump Map --------------------------------------------------------------*/
+extern RpMaterial *
+RpMatFXMaterialSetBumpMapTexture( RpMaterial *material,
+                                  RwTexture *texture );
+
+extern RpMaterial *
+RpMatFXMaterialSetBumpMapFrame( RpMaterial *material,
+                                RwFrame *frame );
+
+extern RpMaterial *
+RpMatFXMaterialSetBumpMapCoefficient( RpMaterial *material,
+                                      RwReal coef );
+extern RwTexture *
+RpMatFXMaterialGetBumpMapTexture( const RpMaterial *material );
+
+extern RwTexture *
+RpMatFXMaterialGetBumpMapBumpedTexture( const RpMaterial *material );
+
+extern RwFrame *
+RpMatFXMaterialGetBumpMapFrame( const RpMaterial *material );
+
+extern RwReal
+RpMatFXMaterialGetBumpMapCoefficient( const RpMaterial *material );
+
+/*--- Env Map ---------------------------------------------------------------*/
+extern RpMaterial *
+RpMatFXMaterialSetEnvMapTexture( RpMaterial *material,
+                                 RwTexture *texture );
+
+extern RpMaterial *
+RpMatFXMaterialSetEnvMapFrame( RpMaterial *material,
+                               RwFrame *frame );
+
+extern RpMaterial *
+RpMatFXMaterialSetEnvMapFrameBufferAlpha( RpMaterial *material,
+                                          RwBool useFrameBufferAlpha );
+
+extern RpMaterial *
+RpMatFXMaterialSetEnvMapCoefficient( RpMaterial *material,
+                                     RwReal coef );
+
+extern RwTexture *
+RpMatFXMaterialGetEnvMapTexture( const RpMaterial *material );
+
+extern RwFrame *
+RpMatFXMaterialGetEnvMapFrame( const RpMaterial *material );
+
+extern RwBool
+RpMatFXMaterialGetEnvMapFrameBufferAlpha( const RpMaterial *material );
+
+extern RwReal
+RpMatFXMaterialGetEnvMapCoefficient( const RpMaterial *material );
+
+/*--- Dual Pass -------------------------------------------------------------*/
+extern RpMaterial *
+RpMatFXMaterialSetDualTexture( RpMaterial *material,
+                               RwTexture *texture );
+
+extern RpMaterial *
+RpMatFXMaterialSetDualBlendModes( RpMaterial *material,
+                                  RwBlendFunction srcBlendMode,
+                                  RwBlendFunction dstBlendMode );
+
+extern RwTexture *
+RpMatFXMaterialGetDualTexture( const RpMaterial *material );
+
+extern const RpMaterial *
+RpMatFXMaterialGetDualBlendModes( const RpMaterial *material,
+                                  RwBlendFunction *srcBlendMode,
+                                  RwBlendFunction *dstBlendMode );
+
+/*--- UV Transform + Dual UV Transform---------------------------------------*/
+extern RpMaterial *
+RpMatFXMaterialSetUVTransformMatrices( RpMaterial *material,
+                                       RwMatrix *baseTransform,
+                                       RwMatrix *dualTransform );
+
+extern const RpMaterial *
+RpMatFXMaterialGetUVTransformMatrices( const RpMaterial *material,
+                                       RwMatrix **baseTransform,
+                                       RwMatrix **dualTransform );
+
+/*---------------------------------------------------------------------------*/
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+
+#endif /* RPMATFX_MATFX_H */
+
+/*---- end: ./matfx.h----*/
+
+/*---- start: c:/daily/rwsdk/plugin/matfx/d3d9/matfxplatform.h----*/
+
 /**
  * \defgroup rpmatfxd3d9 D3D9
  * \ingroup rpmatfx
@@ -75,3 +229,29 @@ enum RpMatFXD3D9Pipeline
     rpMATFXD3D9PIPELINEFORCEENUMSIZEINT = RWFORCEENUMSIZEINT
 };
 typedef enum RpMatFXD3D9Pipeline RpMatFXD3D9Pipeline;
+
+/******************************************************************************
+ *  Global types
+ */
+
+/******************************************************************************
+ *  Functions
+ */
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif /* __cplusplus */
+
+extern RxPipeline *
+RpMatFXGetD3D9Pipeline( RpMatFXD3D9Pipeline d3d9Pipeline );
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+/*---- end: c:/daily/rwsdk/plugin/matfx/d3d9/matfxplatform.h----*/
+
+#endif /* RPMATFX_H */
+
+
